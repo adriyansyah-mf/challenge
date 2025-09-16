@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./webapp
+    container_name: securecorp_portal
+    ports:
+      - "8080:80"
+    volumes:
+      - ./webapp/src:/var/www/html
+      - /var/run/docker.sock:/var/run/docker.sock  # Intentional misconfiguration for docker escape
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=webapp
+      - MYSQL_PASSWORD=w3bp@ss123
+      - MYSQL_DATABASE=securecorp
+    depends_on:
+      - db
+    networks:
+      - app_network
+    # Privileged mode for container escape scenario
+    privileged: true
+    
+  db:
+    image: mysql:5.7
+    container_name: securecorp_db
+    environment:
+      MYSQL_ROOT_PASSWORD: r00tp@ss123
+      MYSQL_DATABASE: securecorp
+      MYSQL_USER: webapp
+      MYSQL_PASSWORD: w3bp@ss123
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db_data:/var/lib/mysql
+    networks:
+      - app_network
+    ports:
+      - "3306:3306"  # Exposed for additional attack vector
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    container_name: securecorp_elastic
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - app_network
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.0
+    container_name: securecorp_kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - app_network
+
+volumes:
+  db_data:
+  elastic_data:
+
+networks:
+  app_network:
+    driver: bridge
