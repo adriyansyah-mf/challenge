@@ -1,8 +1,6 @@
 <?php
-// Debug page with information disclosure vulnerabilities
 require_once 'config.php';
 
-// Check if debug mode is enabled (always enabled - vulnerability)
 $debug_enabled = true;
 
 if (!$debug_enabled) {

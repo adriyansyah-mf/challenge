@@ -1,22 +1,18 @@
 <?php
-// Log viewer with command injection vulnerability
 $log_file = '/var/log/apache2/access.log';
 $log_content = '';
 
 if (isset($_POST['view_log'])) {
     $selected_log = $_POST['log_file'];
     
-    // Vulnerable: No input sanitization for command injection
     $command = "tail -50 $selected_log";
     $log_content = shell_exec($command . " 2>&1");
 }
 
-// Search logs with additional vulnerability
 if (isset($_POST['search_logs'])) {
     $search_term = $_POST['search_term'];
     $log_to_search = $_POST['log_to_search'];
     
-    // Vulnerable: Command injection through search
     $command = "grep '$search_term' $log_to_search";
     $log_content = shell_exec($command . " 2>&1");
 }

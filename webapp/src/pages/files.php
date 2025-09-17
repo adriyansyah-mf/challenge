@@ -1,18 +1,16 @@
 <?php
-// File upload handling with vulnerabilities
+
 if (isset($_POST['upload'])) {
     $target_dir = UPLOAD_DIR;
     $filename = $_FILES["file"]["name"];
     $target_file = $target_dir . basename($filename);
     
-    // Vulnerable: No proper file type validation
     $file_extension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
     
-    // Weak validation that can be bypassed
     if ($_FILES["file"]["size"] > MAX_FILE_SIZE) {
         $upload_error = "File is too large.";
     } else {
-        // Move uploaded file (vulnerable to path traversal and unrestricted file upload)
+
         if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
             $upload_success = "File uploaded successfully: " . htmlspecialchars($filename);
         } else {
@@ -21,12 +19,10 @@ if (isset($_POST['upload'])) {
     }
 }
 
-// File download with path traversal vulnerability
 if (isset($_GET['download'])) {
     $file = $_GET['download'];
     $filepath = UPLOAD_DIR . $file;
     
-    // Vulnerable: No path validation
     if (file_exists($filepath)) {
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($file) . '"');
@@ -35,7 +31,7 @@ if (isset($_GET['download'])) {
     }
 }
 
-// List uploaded files
+
 $uploaded_files = array();
 if (is_dir(UPLOAD_DIR)) {
     $files = scandir(UPLOAD_DIR);

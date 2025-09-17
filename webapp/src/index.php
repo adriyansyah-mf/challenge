@@ -2,12 +2,10 @@
 session_start();
 require_once 'config.php';
 
-// Simple authentication bypass vulnerability
 if (isset($_POST['login'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
     
-    // Vulnerable SQL query (SQL Injection)
     $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
     $result = mysqli_query($connection, $query);
     

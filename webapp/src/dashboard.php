@@ -2,7 +2,6 @@
 session_start();
 require_once 'config.php';
 
-// Simple session check (can be bypassed)
 if (!isset($_SESSION['logged_in'])) {
     header('Location: index.php');
     exit();
@@ -10,19 +9,15 @@ if (!isset($_SESSION['logged_in'])) {
 
 $username = $_SESSION['username'];
 
-// XSS vulnerability - no output encoding
 if (isset($_GET['message'])) {
     $message = $_GET['message'];
 }
 
-// Command injection vulnerability
 if (isset($_POST['ping_host'])) {
     $host = $_POST['host'];
-    // Vulnerable: No input sanitization
     $output = shell_exec("ping -c 3 $host 2>&1");
 }
 
-// File inclusion vulnerability
 $page = isset($_GET['page']) ? $_GET['page'] : 'home';
 ?>
 <!DOCTYPE html>
@@ -138,12 +133,11 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
     <div class="container">
         <?php if (isset($message)): ?>
             <div class="alert alert-info">
-                <?php echo $message; // XSS vulnerability ?>
+                <?php echo $message; ?>
             </div>
         <?php endif; ?>
         
         <?php
-        // Local File Inclusion vulnerability
         switch($page) {
             case 'network':
                 include 'pages/network.php';
@@ -159,7 +153,6 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'home';
                 break;
         }
         
-        // Even more vulnerable - direct inclusion
         if (isset($_GET['include'])) {
             include $_GET['include'];
         }
